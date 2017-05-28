@@ -1,11 +1,14 @@
 package chat;
 
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 public class Client extends javax.swing.JFrame {
 
@@ -14,6 +17,64 @@ public class Client extends javax.swing.JFrame {
 
     public Client() {
         initComponents();
+        initUserList();
+    }
+
+    private void initUserList() {
+        JFrame userListFrame = new JFrame("User list");
+        JPanel userPanel = new JPanel();
+        JLabel activeUsersLabel = new JLabel("Active users");
+
+        activeUsersLabel.setForeground(Color.lightGray);
+        activeUsersLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.Y_AXIS));
+        userPanel.setBackground(new Color(51, 51, 51));
+        userPanel.add(activeUsersLabel);
+
+
+        userPanel.setVisible(true);
+        userListFrame.setSize(250, 250);
+        userListFrame.getContentPane().add(userPanel);
+        userListFrame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+        userListFrame.pack();   // to resize or to not resize?
+
+        userListFrame.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyChar() == 27)        // hide on escape
+                    userListFrame.setVisible(false);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
+
+        currentUser.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isShiftDown() && e.isControlDown() && !userListFrame.isVisible()) {
+                    userListFrame.setVisible(true);
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
