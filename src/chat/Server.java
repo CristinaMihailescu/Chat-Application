@@ -5,10 +5,7 @@
  */
 package chat;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -112,18 +109,24 @@ public class Server extends javax.swing.JFrame {
 
         private String nume;
         private Socket socket;
-        private BufferedReader in;
+        //private Socket otherSocket;
+        private BufferedReader in;//, in2;
         private PrintWriter out;
 
         public FirUtilizator(Socket socket) {
             this.socket = socket;
         }
 
+        /*FirUtilizator(Socket s, int x) {
+            otherSocket = s;
+        }*/
+
         @Override
         public void run() {
             try {
                 //se creeaza fluxurile de comunicare cu clientul
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                //in2 = new BufferedReader(new InputStreamReader(otherSocket.getInputStream()));
                 out = new PrintWriter(socket.getOutputStream(), true);
 
                 boolean duplicat = false;
@@ -178,11 +181,19 @@ public class Server extends javax.swing.JFrame {
                         continue;
                     }
 
-                    /*
-                    if (toClient.startsWith("STOP"))
-                        break;
-                     */
                     String message = nameAndInput.substring(receiverName.length() + 1);
+
+                    /*if (in2.readLine().startsWith("___")) {
+                        try
+                        {
+                            ObjectOutputStream objectOutput = new ObjectOutputStream(otherSocket.getOutputStream());
+                            objectOutput.writeObject(threads);
+                        }
+                        catch (IOException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }*/
 
                     System.out.println(nameAndInput);
 
@@ -221,12 +232,13 @@ public class Server extends javax.swing.JFrame {
         infoArea.append(msg + "\n");
     }
 
-    ServerSocket ServerChat;
-    ArrayList<FirUtilizator> threads = new ArrayList<FirUtilizator>();
+    ServerSocket ServerChat;//, serverList;
+    /*static */ArrayList<FirUtilizator> threads = new ArrayList<FirUtilizator>();
 
     private void startActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startActionPerformed
         try {
             ServerChat = new ServerSocket(PORT);
+            //serverList = new ServerSocket(5678);
 
             (new Thread() {
                 public void run() {
@@ -239,11 +251,15 @@ public class Server extends javax.swing.JFrame {
                     while (true) {
                         try {
                             Socket cs = ServerChat.accept();
+                            //Socket cs2 = serverList.accept();
                             FirUtilizator t = new FirUtilizator(cs);
+                            //FirUtilizator tl = new FirUtilizator(cs2, 0);
                             t.start();
+                            //tl.start();
                             threads.add(t);
                         } catch (IOException ex) {
                             System.out.println("Oops");
+                            break;
                         }
                     }
                 }

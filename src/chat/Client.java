@@ -1,19 +1,21 @@
 package chat;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
-import javax.swing.*;
+import java.util.ArrayList;
 
 public class Client extends javax.swing.JFrame {
 
     public static final int PORT = 4444;
     public static final String IP = "127.0.0.1";
+    private JFrame userListFrame = new JFrame("User list");
+    private JPanel userPanel = new JPanel();
+    private JLabel activeUsersLabel = new JLabel("Active users");
 
     public Client() {
         initComponents();
@@ -21,23 +23,20 @@ public class Client extends javax.swing.JFrame {
     }
 
     private void initUserList() {
-        JFrame userListFrame = new JFrame("User list");
-        JPanel userPanel = new JPanel();
-        JLabel activeUsersLabel = new JLabel("Active users");
 
         activeUsersLabel.setForeground(Color.lightGray);
         activeUsersLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.Y_AXIS));
         userPanel.setBackground(new Color(51, 51, 51));
-        userPanel.add(activeUsersLabel);
-
+        userPanel.removeAll();
+        initPanel();
 
         userPanel.setVisible(true);
         userListFrame.setSize(250, 250);
         userListFrame.getContentPane().add(userPanel);
         userListFrame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-        userListFrame.pack();   // to resize or to not resize?
+        //userListFrame.pack();   // to resize or to not resize?
 
         userListFrame.addKeyListener(new KeyListener() {
             @Override
@@ -57,24 +56,52 @@ public class Client extends javax.swing.JFrame {
             }
         });
 
-        currentUser.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
+    }
 
+    private void initPanel() {
+        userPanel.add(activeUsersLabel);
+
+        /*ObjectInputStream objectInput; //Error Line!
+        try {
+            Socket socket = new Socket(IP, 5678);
+
+            PrintWriter lOut = new PrintWriter(socket.getOutputStream());
+            System.out.println("...");
+            lOut.print("___");
+            objectInput = new ObjectInputStream(socket.getInputStream());
+            System.out.println("...");
+            ArrayList<String> userList;
+            try {
+                System.out.println("...");
+                Object object = objectInput.readObject();
+                System.out.println("...");
+                userList = (ArrayList<String>) object;
+                System.out.println(userList.get(1));
+                System.out.println("before");
+                System.out.println(userList);
+            } catch (ClassNotFoundException e) {
+                System.out.println("The title list has not come from the server");
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.isShiftDown() && e.isControlDown() && !userListFrame.isVisible()) {
-                    userListFrame.setVisible(true);
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
-            }
-        });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+        /*try {*/
+                /*threads.forEach(thread -> {
+                    String name = thread.getName();
+                    System.out.println(name);
+                    if (!name.equals(currentUser.getName())) {
+                        JLabel otherUser = new JLabel(name);
+                        otherUser.setForeground(Color.lightGray);
+                        otherUser.setAlignmentX(Component.CENTER_ALIGNMENT);
+                        userPanel.add(otherUser);
+                    }
+                });*/
+            /*} catch (NullPointerException e) {
+                e.printStackTrace();
+            }*/
     }
 
     @SuppressWarnings("unchecked")
@@ -276,6 +303,18 @@ public class Client extends javax.swing.JFrame {
                     if (mesajServer.startsWith("Nume acceptat!")) {
                         JOptionPane.showMessageDialog(this, "Login successful! Username: " + currentUser.getText());
                         currentUser.setEditable(false);
+
+                        login.setText("Users list");
+                        for (ActionListener actionListener : login.getActionListeners()) {
+                            login.removeActionListener(actionListener);
+                        }
+                        login.addActionListener(e -> {
+                            userPanel.removeAll();
+                            initPanel();
+                            if(!userListFrame.isVisible()) {
+                                userListFrame.setVisible(true);
+                            }
+                        });
                         break;
                     } else {
                         JOptionPane.showMessageDialog(this, "Username-ul " + currentUser.getText() + " deja exista!");
